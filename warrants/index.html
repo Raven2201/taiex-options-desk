@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>權證看台｜行情與情境推演</title><link rel="stylesheet" href="/style.css"><script src="/model.js" defer></script><script src="/app.js" defer></script></head>
+<body>
+<header class="topbar"><div class="brand"><span class="mark">W</span><div><h1>權證看台</h1><p>上市・上櫃 / 買進認購・認售</p></div></div><div class="top-actions"><span class="badge" id="mode-badge">官方行情</span><button id="live-mode">讀取官方行情</button><button id="demo-mode">試用教學範例</button></div></header>
+<div id="notice" role="status" aria-live="polite">正在讀取官方資料…</div>
+<main>
+<aside class="catalog panel">
+  <div class="section-heading"><div><span class="eyebrow">01 / 找權證</span><h2>從你的標的開始</h2></div><span id="catalog-count" class="muted"></span></div>
+  <form id="search-form"><label for="search">股票代號、名稱或權證代號</label><div class="search-row"><input id="search" value="2330" placeholder="例如 2330、台積電、權證代號" maxlength="80"><button class="primary" type="submit">搜尋</button></div>
+  <div class="filters"><label>方向<select id="kind"><option value="all">全部</option><option value="call">認購・看漲</option><option value="put">認售・看跌</option></select></label><label>市場<select id="market"><option value="all">上市＋上櫃</option><option value="tse">上市</option><option value="otc">上櫃</option></select></label><label>剩餘天數<select id="tenor"><option value="30,730">30 天以上</option><option value="0,30">30 天內</option><option value="90,730">90 天以上</option><option value="0,730">全部</option></select></label></div></form>
+  <p class="hint">點選一檔查看條款。買進看「賣價」，賣出看「買價」。</p>
+  <div id="catalog-list" class="catalog-list" aria-live="polite"></div>
+  <div class="pager"><button id="prev">上一頁</button><span id="page-info"></span><button id="next">下一頁</button></div>
+  <details class="manual"><summary>手動輸入一檔權證</summary><p class="hint">僅限國內股票／ETF 一般型；請依券商或公開說明書核對最新條款。</p>
+  <form id="manual-form" class="field-grid"><label>權證代號<input id="man-code" required maxlength="20" placeholder="自訂代號"></label><label>標的代號<input id="man-underlying" required maxlength="12" placeholder="2330"></label><label>方向<select id="man-kind"><option value="call">認購</option><option value="put">認售</option></select></label><label>標的現價<input id="man-spot" type="number" min="0.01" step="any" required></label><label>履約價<input id="man-strike" type="number" min="0.0001" step="any" required></label><label>每單位履約比例<input id="man-ratio" type="number" min="0.000001" step="any" required placeholder="例如 0.01"></label><label>到期日<input id="man-expiry" type="date" required></label><label>最後交易日<input id="man-trade" type="date" required></label><label>參考買價（可空白）<input id="man-bid" type="number" min="0" step="0.001"></label><label>參考賣價（可空白）<input id="man-ask" type="number" min="0" step="0.001"></label><button class="primary" type="submit">載入這檔權證</button></form></details>
+  <details class="guide"><summary>權證和選擇權，有哪些不同？</summary><p>本看台只建立買進權證的模擬。發行商提供買賣報價，價差與調整波動率都會影響平倉結果。</p><p>1 張是 1,000 單位。到期每單位價值＝價內金額 × 履約比例。最後交易日可能早於到期日。</p><p>情境採歐式 Black–Scholes 近似；美式權證未計提前履約價值。牛熊證、展延型、海外與指數標的不套用本模型。</p></details>
+</aside>
+<div class="workspace">
+  <section class="panel selection"><div class="section-heading"><div><span class="eyebrow">02 / 建立模擬</span><h2 id="selected-name">選一檔權證，開始推演</h2></div><span class="badge" id="selected-kind">尚未選擇</span></div><div id="contract-detail" class="contract-detail"><p class="muted">從左側選擇，或先試用教學範例。</p></div>
+  <form id="add-form" class="entry-row"><label>進場價（元／單位）<input id="entry" type="number" min="0.000001" step="any" required></label><label>張數（1 張＝1,000 單位）<input id="lots" type="number" value="1" min="1" step="1" required></label><button id="add" class="primary" type="submit" disabled>加入模擬部位</button></form><p id="entry-note" class="hint">選定後以賣價預填；未提供賣價時需自行填入。</p></section>
+  <section class="panel"><div class="section-heading"><div><span class="eyebrow">03 / 看情境</span><h2>到價，和到期，是兩件事</h2></div><button id="refresh">更新報價</button></div>
+  <div class="scenario-fields"><label>標的價（元）<input id="spot" type="number" min="0.000001" step="any" value="100"></label><label>你的目標價（元）<input id="target" type="number" min="0.000001" step="any" value="110"></label><label>經過幾天<input id="elapsed" type="number" min="0" step="0.5" value="1"></label><label>情境 IV（%）<input id="iv" type="number" min="0.1" max="500" step="0.5" value="35"></label></div>
+  <div class="scenario-bar"><label class="check"><input id="follow" type="checkbox" checked>標的價跟隨行情</label><button id="reset-iv">IV 對回所選權證</button><span id="spot-source" class="muted"></span></div>
+  <div id="metrics" class="metrics"><p class="empty">加入部位後，顯示投入金額、風險與目標損益。</p></div>
+  <div id="chart" class="chart"><p class="empty">先加入一檔權證，就能比較現在、情境與到期的損益。</p></div>
+  <div class="legend"><span><i class="line terminal"></i>到期損益</span><span><i class="line scenario"></i>情境理論損益</span><span><i class="line current"></i>標的參考價</span><span><i class="line target"></i>你的目標價</span></div>
+  <p class="chart-caption" id="chart-caption">圖上的到期獲利，不代表現在平倉能拿到的金額。</p>
+  <div id="greeks" class="greeks"></div>
+  <details class="advanced"><summary>費用與模型參數</summary><div class="field-grid"><label>手續費率（%／單邊）<input id="fee-rate" type="number" min="0" max="10" step="0.001" value="0.1425"></label><label>每筆最低手續費（元）<input id="fee-min" type="number" min="0" step="1" value="20"></label><label>賣出／現金履約稅率（%）<input id="tax" type="number" min="0" max="10" step="0.01" value="0.1"></label><label>年利率（%）<input id="rate" type="number" min="0" max="30" step="0.1" value="1.5"></label><label>連續股息殖利率近似（%）<input id="yield" type="number" min="0" max="50" step="0.1" value="0"></label></div><p class="hint">買賣雙邊分別計費，每一部位各算一筆。到期線以相同手續費率估算現金履約費；請依券商條款調整。未計滑價與整元取捨，理論價不保證可成交。</p></details>
+  </section>
+  <section class="panel"><div class="section-heading"><h2>模擬部位</h2><div class="actions"><button id="undo" disabled>復原</button><button id="clear">清空組合</button><button id="save-plan" class="primary">保存模擬單</button></div></div><div id="positions" class="table-wrap"><p class="empty">尚未加入部位。同一組合使用相同標的與到期日。</p></div><p id="position-note" class="hint"></p></section>
+  <section class="panel"><div class="section-heading"><div><span class="eyebrow">04 / 比較取捨</span><h2>這一頁的權證，哪個符合你的情境？</h2></div></div><p class="hint">每檔 1 張，以有效賣價估進場成本、相同情境 IV 估目標價值。排序是你的假設下的結果，並非推薦。</p><div id="comparison" class="table-wrap"><p class="empty">載入權證與行情後比較。</p></div></section>
+  <section class="panel"><div class="section-heading"><div><span class="eyebrow">05 / 留下紀錄</span><h2>模擬追蹤</h2></div><div class="actions"><button id="export">匯出備份</button><label class="button" for="import">還原備份<input id="import" type="file" accept="application/json,.json" hidden></label></div></div><p class="hint">保存在此瀏覽器，每 15 秒嘗試更新行情。平倉與結算需手動確認數值；不會送出交易委託。</p><div id="journal"></div></section>
+</div>
+</main>
+<dialog id="close-dialog"><form id="close-form"><h2>記錄模擬單結束</h2><p id="close-title"></p><label>結束方式<select id="close-mode"><option value="close">依每檔賣出價平倉</option><option value="settle">依官方現金結算標的價計算</option></select></label><div id="close-inputs"></div><p class="hint">預填值可能是收盤／舊報價，請核對。結算請輸入條款指定的官方標的結算價，非直接使用圖上現價。</p><div class="actions"><button id="cancel-close" type="button">取消</button><button class="primary" type="submit">保存結果</button></div></form></dialog>
+<footer>資料：<a href="https://www.twse.com.tw/zh/products/securities/warrant/infomation/stock.html" target="_blank" rel="noreferrer">證交所權證資料</a> · <a href="https://www.tpex.org.tw/openapi/" target="_blank" rel="noreferrer">櫃買中心 OpenAPI</a> · <a href="https://www.twse.com.tw/zh/products/securities/warrant/educate/qa.html" target="_blank" rel="noreferrer">權證交易與費稅說明</a>。網站行情可能延遲；僅供模擬與比較。</footer>
+</body></html>

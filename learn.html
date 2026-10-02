@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>選擇權教學</title>
+<style>
+:root{
+  --ground:#F3F4F6; --surface:#FFFFFF; --surface2:#F4F6F8; --line:#D9DEE4; --line2:#B9C1CA;
+  --ink:#141A20; --ink2:#46515D; --ink3:#77828E;
+  --accent:#8F6310; --accent-soft:rgba(143,99,16,.10); --accent-line:rgba(143,99,16,.35);
+  --up:#C0392B; --up-soft:rgba(192,57,43,.12); --down:#1E8A57; --down-soft:rgba(30,138,87,.12);
+  --b50:rgba(143,99,16,.42); --b68:rgba(143,99,16,.24); --b90:rgba(143,99,16,.11);
+  --sans:"IBM Plex Sans","Noto Sans TC","Microsoft JhengHei UI","Microsoft JhengHei",sans-serif;
+  --mono:"IBM Plex Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --ground:#0F1318; --surface:#171D24; --surface2:#1D252E; --line:#2A343F; --line2:#3A4652;
+  --ink:#E7ECF1; --ink2:#B6C1CC; --ink3:#8795A3;
+  --accent:#E0A84A; --accent-soft:rgba(224,168,74,.12); --accent-line:rgba(224,168,74,.4);
+  --up:#F06B5F; --up-soft:rgba(240,107,95,.14); --down:#45C486; --down-soft:rgba(69,196,134,.13);
+  --b50:rgba(224,168,74,.45); --b68:rgba(224,168,74,.26); --b90:rgba(224,168,74,.12);
+}}
+*{box-sizing:border-box}
+body{margin:0; background:var(--ground); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.8}
+a{color:var(--accent)}
+.top{position:sticky; top:0; z-index:5; background:var(--surface); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:14px; padding:10px 20px}
+.top b{font-size:16px}
+.top nav{margin-left:auto; display:flex; gap:14px; font-size:14px}
+.wrap{max-width:780px; margin:0 auto; padding:0 18px}
+.toc{margin:22px 0 6px; display:flex; flex-wrap:wrap; gap:8px}
+.toc a{font-size:13.5px; text-decoration:none; border:1px solid var(--line); border-radius:999px; padding:3px 12px; background:var(--surface)}
+section.lesson{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px 24px; margin:18px 0}
+.lesson h2{margin:0 0 4px; font-size:22px}
+.lesson .no{font-family:var(--mono); color:var(--accent); font-size:13px; letter-spacing:.06em}
+.lesson h3{font-size:17px; margin:22px 0 6px}
+.lesson p{margin:10px 0}
+.num{font-family:var(--mono); font-variant-numeric:tabular-nums}
+.key{border-left:4px solid var(--accent); background:var(--accent-soft); padding:12px 16px; border-radius:0 10px 10px 0; margin:16px 0}
+.key b{color:var(--accent)}
+.muted{color:var(--ink3); font-size:14px}
+.card{border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:14px 0; background:var(--surface2)}
+.card .head{display:flex; flex-wrap:wrap; gap:8px 16px; align-items:baseline; justify-content:space-between}
+.card select{font:inherit; font-size:14px; background:var(--surface); color:var(--ink); border:1px solid var(--line2); border-radius:6px; padding:2px 6px}
+.bands{display:grid; gap:8px; margin:12px 0 6px}
+.band{display:grid; grid-template-columns:118px 1fr; gap:10px; align-items:center}
+.band .p{font-weight:600}
+.band .r{font-family:var(--mono); font-size:18px}
+.band .r small{font-size:13px; color:var(--ink3)}
+.sw{display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-1px; margin-right:6px}
+svg.bell{display:block; width:100%; height:auto; margin-top:6px}
+svg.bell text{font-family:var(--mono); font-size:11px; fill:var(--ink3)}
+svg.bell .now{stroke:var(--ink); stroke-width:1.5}
+table{border-collapse:collapse; width:100%; font-size:15px; margin:10px 0}
+th,td{border-bottom:1px solid var(--line); padding:8px 10px; text-align:left}
+th{color:var(--ink2); font-weight:600; font-size:14px; background:var(--surface2)}
+td.n{font-family:var(--mono); text-align:right}
+.myth{border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0}
+.myth .say{font-weight:600}
+.myth .say::before{content:"聽起來："; color:var(--ink3); font-weight:400}
+.myth .fact::before{content:"實際測：";color:var(--accent); font-weight:600}
+.myth .so::before{content:"所以：";color:var(--ink3)}
+.myth p{margin:6px 0}
+.fcrow{display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; margin:10px 0}
+.fcrow input{width:110px; font:inherit; font-family:var(--mono); padding:5px 8px; border:1px solid var(--line2); border-radius:6px; background:var(--surface); color:var(--ink)}
+#fc select,.fcrow select{font:inherit; padding:3px 6px; border:1px solid var(--line2); border-radius:6px; background:var(--surface); color:var(--ink)}
+.blk{display:block; margin:10px 0; font-size:14px; color:var(--ink2)}
+.blk textarea,.blk input{display:block; width:100%; margin-top:4px; font:inherit; font-size:15px; padding:7px 9px; border:1px solid var(--line2); border-radius:6px; background:var(--surface); color:var(--ink)}
+.blk textarea{min-height:64px; resize:vertical}
+.btn{font:inherit; font-size:14px; padding:6px 14px; border:1px solid var(--line2); border-radius:8px; background:var(--surface); color:var(--ink); cursor:pointer}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600}
+.prev{font-size:15px; line-height:1.9; padding:8px 12px; border-radius:8px; background:var(--surface)}
+.prev .warn{color:var(--up); font-weight:600}
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:8px 0}
+.tile{border:1px solid var(--line); border-radius:10px; padding:10px 12px; background:var(--surface2)}
+.tile .l{font-size:13px; color:var(--ink3)} .tile .v{font-family:var(--mono); font-size:20px; font-weight:600}
+.tile .s{font-size:12.5px; color:var(--ink3)}
+svg.calib{display:block; width:100%; max-width:420px; height:auto; margin:6px 0}
+svg.calib text{font-family:var(--mono); font-size:10px; fill:var(--ink3)}
+.win{color:var(--up); font-weight:600} .lose{color:var(--down); font-weight:600}
+td .x{border:0; background:none; color:var(--ink3); cursor:pointer; font-size:14px}
+.picks{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px}
+.pick{font:inherit; font-size:14px; padding:4px 11px; border:1px solid var(--line2); border-radius:999px; background:var(--surface); color:var(--ink); cursor:pointer}
+.pick.on{background:var(--accent); border-color:var(--accent); color:#fff}
+.idea{font-size:16px; margin:8px 0}
+svg.pay{display:block; width:100%; height:auto}
+svg.pay text{font-family:var(--mono); font-size:10.5px; fill:var(--ink3)}
+input[type=range]{vertical-align:middle; accent-color:var(--accent)}
+.todo{border:1.5px dashed var(--line2); border-radius:12px; padding:16px; color:var(--ink2); background:var(--surface2)}
+.err{color:var(--up)}
+footer{color:var(--ink3); font-size:13px; padding:10px 0 40px}
+@media (max-width:560px){ section.lesson{padding:18px 16px} .band{grid-template-columns:96px 1fr} .band .r{font-size:16px} }
+</style>
+</head>
+<body>
+<div class="top">
+  <b>選擇權教學</b><span class="muted">學會預測區間，不是猜單點</span>
+  <nav><a href="/">看台 →</a></nav>
+</div>
+
+<div class="wrap">
+  <div class="toc">
+    <a href="#l1">1. 市場已經畫好區間</a>
+    <a href="#l2">2. 選擇權的四個基本動作</a>
+    <a href="#l3">3. 區間預測練習場</a>
+    <a href="#l4">4. 常見誤會</a>
+  </div>
+
+  <!-- ====================== 第 1 課 ====================== -->
+  <section class="lesson" id="l1">
+    <div class="no">第 1 課</div>
+    <h2>市場已經替你畫好一個區間</h2>
+
+    <p>選擇權可以想成<b>保險</b>。買權保的是「指數漲很多」，賣權保的是「指數跌很多」，保險費叫做<b>權利金</b>。
+    保險公司怎麼訂保費？看出事的機率有多高。選擇權也一樣：成千上萬的買家和賣家，用真的錢把「到期那天指數可能跑多遠」標在價格上。</p>
+
+    <p>所以我們可以反過來做：<b>看保費，倒推市場心中「指數大概會跑多遠」</b>。
+    你在數學課學過常態分布——大約 68% 的資料落在「平均 ± 1 個標準差」裡面。
+    這裡的平均就是現在的指數，標準差就是市場預期的「典型跑動距離」。把它們算出來，就是下面這張卡。</p>
+
+    <div class="card" id="mkt">
+      <div class="head">
+        <span id="mkt-title">讀取即時報價中……</span>
+        <label class="muted">到期日 <select id="mkt-pick"></select></label>
+      </div>
+      <div class="bands" id="mkt-bands"></div>
+      <svg class="bell" id="mkt-bell" viewBox="0 0 720 210" aria-label="市場隱含的結算價分布"></svg>
+      <p class="muted" id="mkt-note"></p>
+    </div>
+
+    <h3>這個區間準不準？</h3>
+    <p>我們拿 2025 年 5 月到 2026 年 9 月、共 71 次週三結算來檢查：每次在結算前一天收盤，照市場的報價畫出區間，看最後結算價有沒有落在裡面。</p>
+    <table id="hist">
+      <thead><tr><th>市場說的機率</th><th>實際落在區間內的比例</th><th>怎麼解讀</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p class="muted">這 71 次剛好都發生在一段大多頭裡（指數從兩萬三漲到四萬八），換成盤整或空頭，結果可能不同。</p>
+
+    <h3>為什麼中心不是期貨的價格？</h3>
+    <p id="fwd-note">選擇權有自己的到期日，期貨也有自己的到期日，兩者常常不是同一天。我們用同一批選擇權自己的價格算出它的中心：
+    同一個履約價，「買權價格 − 賣權價格 + 履約價」就是市場認為到期時指數的位置。</p>
+
+    <div class="key">
+      <b>預測區間的第一步：先抄市場的答案。</b><br>
+      市場的區間已經相當準，想改它，你要說得出改的是<b>寬度</b>（覺得會比市場預期跑得多或少）、
+      還是<b>中心</b>（覺得會往某一邊走），以及<b>為什麼</b>。第 3 課的練習場就是在練這件事。
+    </div>
+  </section>
+
+  <!-- ====================== 第 2 課 ====================== -->
+  <section class="lesson" id="l2">
+    <div class="no">第 2 課</div>
+    <h2>選擇權的四個基本動作</h2>
+    <p>所有複雜的組合，都是這四個動作拼起來的。「買」的一方付保費、最多賠掉保費；「賣」的一方收保費、但要負責理賠。</p>
+    <table>
+      <thead><tr><th>動作</th><th>你在想什麼</th><th>最多賺</th><th>最多賠</th></tr></thead>
+      <tbody>
+        <tr><td>買進買權</td><td>會大漲</td><td>沒有上限</td><td>付出的保費</td></tr>
+        <tr><td>買進賣權</td><td>會大跌</td><td>很多（跌到 0 為止）</td><td>付出的保費</td></tr>
+        <tr><td>賣出買權</td><td>不會大漲</td><td>收到的保費</td><td class="err">沒有上限</td></tr>
+        <tr><td>賣出賣權</td><td>不會大跌</td><td>收到的保費</td><td class="err">非常多</td></tr>
+      </tbody>
+    </table>
+    <p>後兩種單獨賣，叫做<b>裸賣</b>：賠的時候沒有上限，看台直接禁止。要賣，一定要同時買一張更遠的當保險，這就是<b>價差</b>——
+    「一買一賣」把最多賠多少封住。複雜的組合（像蝶式）其實就是兩張價差疊起來，所以你只要懂價差，就能拆解任何組合。</p>
+    <h3>動手拼：用今天的報價組一組</h3>
+    <p>選一個想法，拉兩個滑桿，下面就用<b>現在真實的報價</b>算出這一組要花多少、最多賺多少、最多賠多少，還有市場認為它到期賺錢的機率。
+    只放買方和價差類的組合——全部都是「最多賠多少，一開始就知道」。</p>
+    <div class="card" id="lego">
+      <div class="picks" id="lg-picks"></div>
+      <div class="fcrow">
+        <label>中心放在 <input type="range" id="lg-off" min="-2" max="2" step="0.25" value="0"> <span id="lg-off-v" class="num"></span></label>
+        <label>寬度 <input type="range" id="lg-w" min="0.25" max="2" step="0.25" value="1"> <span id="lg-w-v" class="num"></span></label>
+      </div>
+      <p id="lg-idea" class="idea"></p>
+      <svg class="pay" id="lg-chart" viewBox="0 0 720 240" aria-label="到期損益圖"></svg>
+      <div class="tiles" id="lg-tiles"></div>
+      <p id="lg-legs" class="muted"></p>
+      <p id="lg-fear"></p>
+    </div>
+    <p class="muted">權利金用買賣價的中間值估算，實際下單買方要付賣價、賣方只收得到買價，會再差一點。到期損益只看結算那一刻，中途平倉的盈虧另外算。</p>
+    <p>想看公式（Black-76 定價、希臘字母）的人，舊版的<a href="/options_manual.html">進階附錄</a>還在，用語比較深。</p>
+
+  </section>
+
+  <!-- ====================== 第 3 課 ====================== -->
+  <section class="lesson" id="l3">
+    <div class="no">第 3 課</div>
+    <h2>區間預測練習場</h2>
+    <p>這裡不用下單，只練一件事：<b>說出一個區間，然後讓結算價來打分數。</b>每次結算後，我們也用同一套方法替市場的區間打分，你會知道自己是贏市場還是輸市場。</p>
+
+    <h3>好的區間預測要做到兩件事</h3>
+    <p><b>① 說到做到。</b>你說「七成把握」，長期下來就應該中七成。中得太少代表太有自信，中得太多代表太保守。<br>
+    <b>② 在說到做到的前提下，越窄越好。</b>「明天指數在 0 到 10 萬點之間」永遠會中，但一點用都沒有。</p>
+
+    <h3>怎麼打分數：罰分，越小越好</h3>
+    <p>罰分 ＝ <b>區間的寬度</b> ＋ <b>沒中時的罰款</b>。罰款 ＝ 差了幾點 × 罰款倍率，你說得越有把握，倍率越高：</p>
+    <table>
+      <thead><tr><th>你說的把握</th><th>沒中時，每差 1 點罰</th></tr></thead>
+      <tbody><tr><td>50%</td><td class="n">4 點</td></tr><tr><td>68%</td><td class="n">6.3 點</td></tr>
+      <tr><td>80%</td><td class="n">10 點</td></tr><tr><td>90%</td><td class="n">20 點</td></tr></tbody>
+    </table>
+    <p>例子：你說「90% 會在 48,000～48,400」，結果結算 48,500。罰分 ＝ 寬度 400 ＋ 差 100 點 × 20 ＝ <b>2,400</b>。
+    如果當初只說 68%，罰分是 400 ＋ 100 × 6.3 ＝ <b>1,030</b>。<b>話說太滿，錯了就罰很重</b>；但區間畫太寬，寬度本身就是罰分。
+    最後再除以當時的 1 個標準差，不同週的分數才能放在一起比。</p>
+
+    <div class="card" id="fc">
+      <div class="head"><b>這一次的預測</b>
+        <label class="muted">到期日 <select id="f-exp"></select></label></div>
+      <div class="fcrow">
+        <button type="button" class="btn" id="f-copy">先抄市場的答案</button>
+        <label>結算在 <input id="f-lo" type="number" step="50" inputmode="decimal"></label>
+        <label>～ <input id="f-hi" type="number" step="50" inputmode="decimal"></label>
+        <label>把握 <select id="f-conf"><option>50</option><option selected>68</option><option>80</option><option>90</option></select>%</label>
+      </div>
+      <div id="f-prev" class="prev"></div>
+      <label class="blk">你為什麼這樣改？（照抄市場可以留白）
+        <textarea id="f-reason" maxlength="500" placeholder="例如：今晚美國公布物價數據，覺得會比平常動得多，所以把區間加寬"></textarea></label>
+      <label class="blk">什麼情況代表你判斷錯了？（選填）
+        <input id="f-wrong" maxlength="300" placeholder="例如：數據公布後指數一個小時內就動不到 100 點"></label>
+      <div class="fcrow"><button type="button" class="btn primary" id="f-save">存下這次預測</button><span id="f-msg" class="muted"></span></div>
+    </div>
+
+    <h3>你的成績</h3>
+    <div id="f-board"></div>
+    <svg class="calib" id="f-calib" viewBox="0 0 360 260" aria-label="校準圖：你說的把握與實際命中率"></svg>
+    <div style="overflow-x:auto"><table id="f-list"><thead><tr>
+      <th>建立</th><th>到期</th><th>你的區間</th><th>市場的區間</th><th>結算</th><th>罰分 你／市場</th><th></th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <!-- ====================== 第 4 課 ====================== -->
+  <section class="lesson" id="l4">
+    <div class="no">第 4 課</div>
+    <h2>常見誤會（附我們自己量的數字）</h2>
+    <p>以下都是用期交所歷史資料實測出來的結果，不是網路說法。樣本同樣是 2025-05～2026-09 的週三結算。</p>
+
+    <div class="myth">
+      <p class="say">「買權未平倉最多的履約價會像牆一樣擋住指數。」</p>
+      <p class="fact">在牆和牆之間畫區間，結算落在裡面 76%；但<b>同樣寬度、直接以現價為中心</b>是 84.5%——用牆反而比較不準。
+      指數往上衝過買權牆的比例是 19.7%，市場報價只給 9.4%。</p>
+      <p class="so">牆只能告訴你籌碼堆在哪，不能拿來預測。</p>
+    </div>
+    <div class="myth">
+      <p class="say">「結算價會被拉到 max pain（讓買方最痛的位置）。」</p>
+      <p class="fact">結算價離 max pain 的中位數是 380 點，離前一天的現價只有 241 點。</p>
+      <p class="so">「明天大概在今天附近」比 max pain 準。</p>
+    </div>
+    <div class="myth">
+      <p class="say">「盤整的時候，隨便賣一組價差收保費都會賺。」</p>
+      <p class="fact">每週固定賣一組買權價差、放到結算，71 週試了四種位置，<b>全部虧錢</b>。例如賣在 1 個標準差外：76% 的週都沒事，但總共還是虧 51,150 元——出事的那幾週一次賠掉好幾週的保費。</p>
+      <p class="so">收保費就是當保險公司，賺的是「市場預期跑的距離比實際跑的多」這件事，不是盤整本身。</p>
+    </div>
+    <div class="myth">
+      <p class="say">「蝶式放到結算，猜中中間就大賺。」</p>
+      <p class="fact">各種寬度的蝶式放到結算全部虧損；市場對「正中間那一段」收的價格是實際值的 1.2～1.7 倍，越窄越貴。</p>
+      <p class="so">要用蝶式，就在賺到最大獲利一半時先收，不要抱到最後。</p>
+    </div>
+    <div class="myth">
+      <p class="say">「停損設在『到期會虧』的那個價位，就不會白白被洗出場。」</p>
+      <p class="fact">在平穩隨機的情況下，指數到期前「碰到」某條線的機會，大約是「到期真的收在那條線外面」的<b>兩倍</b>。
+      例如離現價 1 個標準差的位置：到期收在外面約 16%，但到期前碰到約 32%。</p>
+      <p class="so">被觸發的停損裡，大約一半最後其實會折回來。設停損要看「碰到」的機率，算勝率才看「收在哪」——看台的「停損／掛單檢查」兩個都會算給你。</p>
+    </div>
+    <div class="myth">
+      <p class="say">「練到可以猜中結算價上下 100 點。」</p>
+      <p class="fact">結算前一天，結算落在現價 ±100 點內只有 14%，±200 點約 35%。</p>
+      <p class="so">這正是為什麼要練「區間」而不是「點」。</p>
+    </div>
+  </section>
+
+  <footer>
+    資料：期交所即時行情（MIS）與每日行情。區間用「價平選擇權的隱含波動度 × 剩餘時間的平方根」換算；
+    結算前一天的實測樣本 71 次。這頁和看台用同一份計算（core.js），兩邊數字一致。
+  </footer>
+</div>
+
+<script src="/core.js"></script>
+<script>
+"use strict";
+var QUOTES=null, PICK="";
+function pts(v){ return Math.round(v).toLocaleString("en-US"); }
+function el(id){ return document.getElementById(id); }
+
+function render(){
+  if(!QUOTES || !QUOTES.contracts || !QUOTES.contracts.length) return;
+  var cs=QUOTES.contracts, sel=el("mkt-pick");
+  if(!sel.options.length){
+    cs.forEach(function(c){ var o=document.createElement("option"); o.value=c.expiry;
+      o.textContent=c.expiry.slice(5).replace("-","/")+"（"+"日一二三四五六".charAt(new Date(c.expiry+"T12:00:00").getDay())+"）"; sel.appendChild(o); });
+  }
+  var c=cs.filter(function(x){ return x.expiry===PICK; })[0] || cs[0];
+  PICK=c.expiry; sel.value=PICK;
+  var m=seriesStats(c, 1.5);
+  if(!m || !isFinite(m.sigma)){ el("mkt-title").textContent="這個到期日的報價不足，換一個看看"; return; }
+  var days = m.days<1 ? "約 "+Math.max(1,Math.round(m.days*24))+" 小時" : (Math.round(m.days*10)/10)+" 天";
+  el("mkt-title").innerHTML="離 <b>"+c.expiry.slice(5).replace("-","/")+"</b> 結算還有 <b>"+days+"</b>，市場的報價等於在說：";
+  var rows=[[50,"一半的機會"],[68,"三分之二的機會"],[90,"十次有九次"]];
+  el("mkt-bands").innerHTML=rows.map(function(r){
+    var z=BAND_Z[r[0]], lo=m.F-z*m.sigma, hi=m.F+z*m.sigma;
+    return '<div class="band"><span class="p"><span class="sw" style="background:var(--b'+r[0]+')"></span>'+r[1]+'</span>'+
+      '<span class="r">'+pts(lo)+' ～ '+pts(hi)+' <small>（'+r[0]+'%，中心 ±'+pts(z*m.sigma)+' 點）</small></span></div>';
+  }).join("");
+  drawBell(m);
+  el("mkt-note").innerHTML="現在這批選擇權算出來的中心是 <span class=\"num\">"+pts(m.F)+"</span>，"+
+    "市場預期的 1 個標準差是 <span class=\"num\">"+pts(m.sigma)+"</span> 點（隱含波動度 "+(m.iv*100).toFixed(1)+"%）。"+
+    "這是市場的<b>收費標準</b>，不代表它知道指數會往哪走。";
+  var fut=QUOTES.future && QUOTES.future.last, fn=el("fwd-note");
+  if(!fn.dataset.base) fn.dataset.base=fn.innerHTML;
+  fn.innerHTML=fn.dataset.base;
+  if(fut) fn.innerHTML+=" 現在期貨是 <span class=\"num\">"+pts(fut)+"</span>，這批選擇權的中心是 <span class=\"num\">"+pts(m.F)+
+    "</span>，差 <span class=\"num\">"+pts(Math.abs(fut-m.F))+"</span> 點——那是兩個不同到期日之間的價差，正常。";
+  renderHist(m.days);
+  lgRender();
+}
+
+/* 鐘形曲線：三層區間由深到淺，中間一條線是現在的中心 */
+function drawBell(m){
+  var W=720,H=210,PL=10,PR=10,PB=34,PT=10, iw=W-PL-PR, ih=H-PT-PB;
+  var lo=m.F-3*m.sigma, hi=m.F+3*m.sigma;
+  var X=function(v){ return PL+(v-lo)/(hi-lo)*iw; };
+  var Y=function(z){ return PT+ih-(ndf(z)/ndf(0))*ih; };
+  var curve=function(z0,z1){
+    var d="M"+X(m.F+z0*m.sigma).toFixed(1)+" "+(PT+ih);
+    for(var i=0;i<=60;i++){ var z=z0+(z1-z0)*i/60; d+=" L"+X(m.F+z*m.sigma).toFixed(1)+" "+Y(z).toFixed(1); }
+    return d+" L"+X(m.F+z1*m.sigma).toFixed(1)+" "+(PT+ih)+" Z";
+  };
+  var s="";
+  [[90,"var(--b90)"],[68,"var(--b68)"],[50,"var(--b50)"]].forEach(function(b){
+    var z=BAND_Z[b[0]]; s+='<path d="'+curve(-z,z)+'" fill="'+b[1]+'"/>';
+  });
+  var line="M"+X(lo)+" "+Y(-3); for(var i=0;i<=120;i++){ var z=-3+6*i/120; line+=" L"+X(m.F+z*m.sigma).toFixed(1)+" "+Y(z).toFixed(1); }
+  s+='<path d="'+line+'" fill="none" stroke="var(--accent)" stroke-width="1.6"/>';
+  s+='<line class="now" x1="'+X(m.F)+'" x2="'+X(m.F)+'" y1="'+PT+'" y2="'+(PT+ih)+'"/>';
+  [-2,-1,0,1,2].forEach(function(k){
+    var v=m.F+k*m.sigma;
+    s+='<text x="'+X(v).toFixed(1)+'" y="'+(H-18)+'" text-anchor="middle">'+pts(v)+'</text>';
+    s+='<text x="'+X(v).toFixed(1)+'" y="'+(H-4)+'" text-anchor="middle">'+(k===0?"中心":(k>0?"+":"")+k+"σ")+'</text>';
+  });
+  el("mkt-bell").innerHTML=s;
+}
+
+function renderHist(days){
+  var say=function(p,got){
+    if(Math.abs(got-p)<=3) return "準";
+    return got<p ? "偏窄：實際上比較常跑出這個區間" : "偏寬：實際上比較少跑出去";
+  };
+  el("hist").querySelector("tbody").innerHTML=[50,68,90].map(function(p){
+    var got=Math.round(empCover(BAND_Z[p])*100);
+    return "<tr><td>"+p+"%</td><td class=\"n\">"+got+"%</td><td>"+say(p,got)+"</td></tr>";
+  }).join("");
+  var g50=Math.round(empCover(BAND_Z[50])*100);
+  if(g50<45) el("hist").insertAdjacentHTML("afterend",'<p id="hist-mid">最內層差最多：市場說一半機會落在中間那一小段，實際只有 '+g50+
+    '%。意思是指數<b>很少「小小晃一下」</b>——它常常不是幾乎不動，就是跑出一段。所以把區間畫得很窄、只押中間，比看起來更難中。</p>');
+  if(days>1.5) el("hist").insertAdjacentHTML("afterend",
+    '<p class="muted" id="hist-days">注意：這是用「結算前一天」測的，你現在選的到期日還有 '+(Math.round(days*10)/10)+' 天，只能當參考。</p>');
+}
+
+function load(){
+  fetch("/api/quotes",{cache:"no-store"}).then(function(r){ return r.json(); }).then(function(d){
+    QUOTES=d; fcFillSelect(); fcPreview(); ["hist-days","hist-mid"].forEach(function(i){ var o=el(i); if(o) o.remove(); }); render();
+  }).catch(function(){ el("mkt-title").textContent="讀不到即時報價——看台的伺服器有開嗎？"; });
+}
+el("mkt-pick").addEventListener("change", function(e){ PICK=e.target.value; ["hist-days","hist-mid"].forEach(function(i){ var o=el(i); if(o) o.remove(); }); render(); });
+
+/* ============ 第 2 課：樂高組合 ============ */
+/* 每一種組合都用「中心 c、寬度 w」兩個數字描述，腳位對到報價鏈上最近的履約價。
+   只收買方與價差類：裸賣在看台是禁止的，教學頁也不教。 */
+var LEGO=[
+  {k:"bc", n:"買進買權", idea:"覺得會<b>大漲</b>，漲越多賺越多。", fear:"怕時間：指數不動，權利金每天都在縮水。",
+   legs:function(c,w){ return [["C",1,c]]; }, lego:"單買一張買權（不是價差）"},
+  {k:"bp", n:"買進賣權", idea:"覺得會<b>大跌</b>，跌越多賺越多。", fear:"跟買權一樣怕時間；而且賣權通常比買權貴一點，因為大家都愛買跌的保險。",
+   legs:function(c,w){ return [["P",1,c]]; }, lego:"單買一張賣權（不是價差）"},
+  {k:"bull", n:"買權多頭價差", idea:"覺得會<b>漲到某個位置</b>，不用漲到天上去。", fear:"漲不到賣出那一腳就賺不滿；漲過頭也不會多賺。",
+   legs:function(c,w){ return [["C",1,c],["C",-1,c+w]]; }, lego:"一張價差：買低的買權、賣高的買權"},
+  {k:"bear", n:"賣權空頭價差", idea:"覺得會<b>跌到某個位置</b>。", fear:"跌不到賣出那一腳就賺不滿；跌過頭也不會多賺。",
+   legs:function(c,w){ return [["P",1,c],["P",-1,c-w]]; }, lego:"一張價差：買高的賣權、賣低的賣權"},
+  {k:"sp", n:"賣出賣權價差", idea:"覺得<b>不會跌破</b>某個位置，先收保費。", fear:"急跌。下面有保險封住，但從收保費到最大虧損那段很痛。",
+   legs:function(c,w){ return [["P",-1,c],["P",1,c-w]]; }, lego:"一張價差：賣高的賣權、買低的賣權當保險"},
+  {k:"sc", n:"賣出買權價差", idea:"覺得<b>不會漲過</b>某個位置，先收保費。", fear:"急漲（軋空）。上面有保險封住，但那段路一樣難受。",
+   legs:function(c,w){ return [["C",-1,c],["C",1,c+w]]; }, lego:"一張價差：賣低的買權、買高的買權當保險"},
+  {k:"ic", n:"鐵兀鷹", idea:"覺得會<b>待在一個區間裡</b>，兩邊都先收保費。", fear:"任何一邊被穿過去。收的比單邊多，但兩邊都要顧。",
+   legs:function(c,w){ return [["P",1,c-2*w],["P",-1,c-w],["C",-1,c+w],["C",1,c+2*w]]; }, lego:"兩張價差：一張賣權價差＋一張買權價差"},
+  {k:"fly", n:"蝶式", idea:"覺得會<b>停在某個點附近</b>。", fear:"跑掉就歸零；而且我們實測過，抱到結算長期是虧的，要中途收。",
+   legs:function(c,w){ return [["C",1,c-w],["C",-2,c],["C",1,c+w]]; }, lego:"兩張價差：一張買權多頭價差＋一張買權空頭價差"}
+];
+var LG={k:"bull"};
+function lgChain(){ var cs=(QUOTES&&QUOTES.contracts)||[]; return cs.filter(function(c){ return c.expiry===PICK; })[0]||cs[0]; }
+function lgSnap(rows,x){ return rows.reduce(function(a,r){ return Math.abs(r.K-x)<Math.abs(a.K-x)?r:a; }); }
+function lgPay(legs,S){ return legs.reduce(function(s,l){
+  var v = l.t==="C" ? Math.max(0,S-l.K) : Math.max(0,l.K-S); return s+l.q*(v-l.px); },0)*50; }
+function lgBuild(){
+  var c=lgChain(); if(!c) return null;
+  var m=seriesStats(c,1.5); if(!m || !(m.sigma>0)) return null;
+  var rows=c.rows.filter(function(r){ return r.call!=null && r.put!=null; });
+  var off=+el("lg-off").value, wd=+el("lg-w").value;
+  /* 中心先對到實際的履約價、寬度取 50 的倍數，蝶式和兀鷹才會左右對稱 */
+  var ctr=lgSnap(rows, m.F+off*m.sigma).K, w=Math.max(50, Math.round(wd*m.sigma/50)*50);
+  var spec=LEGO.filter(function(x){ return x.k===LG.k; })[0];
+  var legs=spec.legs(ctr,w).map(function(a){
+    var r=lgSnap(rows,a[2]); return {t:a[0], q:a[1], K:r.K, px:a[0]==="C"?r.call:r.put};
+  });
+  var ks=legs.map(function(l){ return l.K; }).join(",");
+  var uniq=legs.filter(function(l,i){ return legs.findIndex(function(x){ return x.K===l.K&&x.t===l.t; })===i; }).length;
+  if(spec.legs(0,1).length>1 && uniq<new Set(spec.legs(0,1).map(function(a){ return a[0]+a[2]; })).size)
+    return {m:m, spec:spec, legs:legs, tooNarrow:true};
+  return {m:m, spec:spec, legs:legs, ctr:ctr, ks:ks};
+}
+function lgRender(){
+  var picks=el("lg-picks");
+  if(!picks.children.length){
+    picks.innerHTML=LEGO.map(function(x){ return '<button type="button" class="pick" data-k="'+x.k+'">'+x.n+'</button>'; }).join("");
+  }
+  [].forEach.call(picks.children,function(b){ b.classList.toggle("on", b.dataset.k===LG.k); });
+  var off=+el("lg-off").value, wd=+el("lg-w").value;
+  el("lg-off-v").textContent=(off===0?"現在的中心":(off>0?"往上 ":"往下 ")+Math.abs(off)+" 個標準差");
+  el("lg-w-v").textContent=wd+" 個標準差";
+  var b=lgBuild();
+  if(!b){ el("lg-idea").textContent="等報價進來……"; return; }
+  el("lg-idea").innerHTML="<b>"+b.spec.n+"</b>："+b.spec.idea;
+  el("lg-fear").innerHTML="<b>怕什麼：</b>"+b.spec.fear;
+  if(b.tooNarrow){ el("lg-legs").textContent="寬度太窄，幾隻腳擠到同一個履約價了——把寬度拉大一點。";
+    el("lg-tiles").innerHTML=""; el("lg-chart").innerHTML=""; return; }
+  var m=b.m, lo=m.F-3*m.sigma, hi=m.F+3*m.sigma, N=240, xs=[], ys=[];
+  for(var i=0;i<=N;i++){ var x=lo+(hi-lo)*i/N; xs.push(x); ys.push(lgPay(b.legs,x)); }
+  var cost=b.legs.reduce(function(s,l){ return s+l.q*l.px; },0)*50;
+  var far=[lgPay(b.legs,1),lgPay(b.legs,m.F*3)], ymax=Math.max.apply(null,ys), ymin=Math.min.apply(null,ys);
+  var upOpen=b.legs.reduce(function(s,l){ return s+(l.t==="C"?l.q:0); },0)>0;
+  var dnOpen=b.legs.reduce(function(s,l){ return s+(l.t==="P"?l.q:0); },0)>0;
+  var maxWin = upOpen ? "沒有上限" : pts(Math.max(ymax,far[0],far[1]))+" 元";
+  if(!upOpen && dnOpen) maxWin=pts(Math.max(ymax,far[0]))+" 元";
+  var maxLoss=pts(-Math.min(ymin,far[0],far[1]))+" 元";
+  var be=[]; for(var j=1;j<=N;j++){ if((ys[j-1]<0)!==(ys[j]<0)){ var t=ys[j-1]/(ys[j-1]-ys[j]); be.push(xs[j-1]+t*(xs[j]-xs[j-1])); } }
+  var pwin=0; for(var g=0;g<N;g++){ if((ys[g]+ys[g+1])/2>0) pwin+=probBelowOf(m.F,m.iv,m.T,xs[g+1])-probBelowOf(m.F,m.iv,m.T,xs[g]); }
+  var tile=function(l,v,s){ return '<div class="tile"><div class="l">'+l+'</div><div class="v">'+v+'</div><div class="s">'+(s||"")+'</div></div>'; };
+  el("lg-tiles").innerHTML=
+    tile(cost>0?"一開始付出":"一開始收到", pts(Math.abs(cost))+" 元", cost>0?"這就是你買的保費":"先收的保費")+
+    tile("最多賺", maxWin)+tile("最多賠", maxLoss, "一開始就知道")+
+    tile("打平點", be.length?be.map(function(v){ return pts(v); }).join("、"):"—")+
+    tile("市場說到期賺錢的機率", Math.round(pwin*100)+"%", "用今天的報價推算");
+  el("lg-legs").innerHTML="腳位："+b.legs.map(function(l){
+    return (l.q>0?"買":"賣")+(Math.abs(l.q)>1?" "+Math.abs(l.q)+" 張 ":" ")+l.K+(l.t==="C"?" 買權":" 賣權")+"（"+l.px+" 點）";
+  }).join("、")+"。<br>拆成積木：<b>"+b.spec.lego+"</b>。";
+  lgChart(m,b.legs,xs,ys,be);
+}
+function lgChart(m,legs,xs,ys,be){
+  var W=720,H=240,L=58,R=10,T=12,B=34, iw=W-L-R, ih=H-T-B;
+  var ymin=Math.min.apply(null,ys), ymax=Math.max.apply(null,ys), pad=Math.max((ymax-ymin)*0.1,500);
+  var y0=Math.min(ymin-pad,-pad), y1=Math.max(ymax+pad,pad);
+  var X=function(v){ return L+(v-xs[0])/(xs[xs.length-1]-xs[0])*iw; }, Y=function(v){ return T+(y1-v)/(y1-y0)*ih; };
+  var d=xs.map(function(x,i){ return (i?"L":"M")+X(x).toFixed(1)+" "+Y(ys[i]).toFixed(1); }).join(" ");
+  var area=d+" L"+X(xs[xs.length-1]).toFixed(1)+" "+Y(0).toFixed(1)+" L"+X(xs[0]).toFixed(1)+" "+Y(0).toFixed(1)+" Z";
+  var s='<defs><clipPath id="lg-up"><rect x="'+L+'" y="'+T+'" width="'+iw+'" height="'+Math.max(0,Y(0)-T)+'"/></clipPath>'+
+        '<clipPath id="lg-dn"><rect x="'+L+'" y="'+Y(0)+'" width="'+iw+'" height="'+Math.max(0,T+ih-Y(0))+'"/></clipPath></defs>';
+  s+='<rect x="'+X(m.F-m.sigma)+'" y="'+T+'" width="'+(X(m.F+m.sigma)-X(m.F-m.sigma))+'" height="'+ih+'" fill="var(--b90)"/>';
+  s+='<path d="'+area+'" fill="var(--up-soft)" clip-path="url(#lg-up)"/><path d="'+area+'" fill="var(--down-soft)" clip-path="url(#lg-dn)"/>';
+  s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(0)+'" y2="'+Y(0)+'" stroke="var(--line2)"/>';
+  s+='<path d="'+d+'" fill="none" stroke="var(--ink)" stroke-width="2"/>';
+  s+='<line x1="'+X(m.F)+'" x2="'+X(m.F)+'" y1="'+T+'" y2="'+(T+ih)+'" stroke="var(--accent)" stroke-dasharray="4 3"/>';
+  [-2,-1,0,1,2].forEach(function(k){ var v=m.F+k*m.sigma;
+    s+='<text x="'+X(v)+'" y="'+(H-18)+'" text-anchor="middle">'+pts(v)+'</text>'+
+       '<text x="'+X(v)+'" y="'+(H-5)+'" text-anchor="middle">'+(k===0?"中心":(k>0?"+":"")+k+"σ")+'</text>'; });
+  [y1,0,y0].forEach(function(v){ s+='<text x="'+(L-6)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+(v>0?"+":"")+pts(v)+'</text>'; });
+  be.forEach(function(v){ s+='<circle cx="'+X(v)+'" cy="'+Y(0)+'" r="3.5" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/>'; });
+  el("lg-chart").innerHTML=s;
+}
+el("lg-picks").addEventListener("click", function(e){ var k=e.target.dataset && e.target.dataset.k; if(k){ LG.k=k; lgRender(); } });
+["lg-off","lg-w"].forEach(function(id){ el(id).addEventListener("input", lgRender); });
+
+/* ============ 第 3 課：練習場 ============ */
+var FCS=[], FPICK="";
+function expLabel(iso){ return iso.slice(5).replace("-","/")+"（"+"日一二三四五六".charAt(new Date(iso+"T12:00:00").getDay())+"）"; }
+function fcSeries(){ var cs=(QUOTES&&QUOTES.contracts)||[]; return cs.filter(function(c){ return c.expiry===FPICK; })[0]||cs[0]; }
+function fcMarket(){ var c=fcSeries(); if(!c) return null; var m=seriesStats(c,1.5); return (m&&isFinite(m.sigma)&&m.sigma>0)?m:null; }
+function fcConf(){ return parseInt(el("f-conf").value,10)||68; }
+function fcBand(m,conf){ var z=BAND_Z[conf]; return [m.F-z*m.sigma, m.F+z*m.sigma]; }
+function r10(v){ return Math.round(v/10)*10; }
+function fcFillSelect(){
+  var sel=el("f-exp"), cs=(QUOTES&&QUOTES.contracts)||[];
+  if(sel.options.length || !cs.length) return;
+  cs.forEach(function(c){ var o=document.createElement("option"); o.value=c.expiry; o.textContent=expLabel(c.expiry); sel.appendChild(o); });
+  FPICK=cs[0].expiry;
+}
+function fcChanges(m,lo,hi,conf){
+  var b=fcBand(m,conf), dc=(lo+hi)/2-m.F, wr=(hi-lo)/(b[1]-b[0]), ch=[];
+  if(Math.abs(dc)>0.1*m.sigma) ch.push("中心往"+(dc>0?"上":"下")+"移 "+pts(Math.abs(dc))+" 點");
+  if(Math.abs(wr-1)>0.1) ch.push("寬度是市場的 "+wr.toFixed(2)+" 倍");
+  return ch;
+}
+function fcPreview(){
+  var m=fcMarket(), out=el("f-prev");
+  if(!m){ out.textContent="等報價進來……"; return; }
+  var conf=fcConf(), b=fcBand(m,conf), lo=parseFloat(el("f-lo").value), hi=parseFloat(el("f-hi").value);
+  var h="市場同樣 "+conf+"% 的區間：<b class=\"num\">"+pts(b[0])+" ～ "+pts(b[1])+"</b>（1 個標準差＝"+pts(m.sigma)+" 點）";
+  if(lo>0 && hi>lo){
+    var p=probBelowOf(m.F,m.iv,m.T,hi)-probBelowOf(m.F,m.iv,m.T,lo), ch=fcChanges(m,lo,hi,conf);
+    h+="<br>你的區間：<b class=\"num\">"+pts(lo)+" ～ "+pts(hi)+"</b>　"+(ch.length?"你改了："+ch.join("、"):"跟市場幾乎一樣");
+    h+="<br>市場給你這一段的機率：<b>"+Math.round(p*100)+"%</b>（你說 "+conf+"%）";
+    if(conf>p*100*1.4) h+="　<span class=\"warn\">你比市場有把握 "+(conf/Math.max(p*100,1)).toFixed(1)+" 倍，要有很好的理由</span>";
+  }
+  out.innerHTML=h;
+}
+function fcSave(){
+  var m=fcMarket(), msg=el("f-msg");
+  if(!m){ msg.textContent="還沒有報價，等一下再存"; return; }
+  var conf=fcConf(), lo=parseFloat(el("f-lo").value), hi=parseFloat(el("f-hi").value);
+  if(!(lo>0 && hi>lo)){ msg.textContent="先填好區間（下限要小於上限）"; return; }
+  var ch=fcChanges(m,lo,hi,conf), reason=el("f-reason").value.trim();
+  if(ch.length && !reason){ msg.textContent="你改了市場的答案，寫一句理由再存"; return; }
+  var b=fcBand(m,conf);
+  fetch("/api/forecast",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+    expiry:fcSeries().expiry, lo:lo, hi:hi, conf:conf, mlo:b[0], mhi:b[1], sigma:m.sigma, F:m.F, iv:m.iv, days:m.days,
+    change:ch.join("、")||"照抄市場", reason:reason, wrong:el("f-wrong").value.trim()})})
+  .then(function(r){ return r.json(); }).then(function(d){
+    msg.textContent = d.error ? d.error : "存好了，結算後會自動打分數";
+    if(!d.error){ el("f-reason").value=""; el("f-wrong").value=""; fcLoad(); }
+  }).catch(function(){ msg.textContent="存檔失敗：伺服器沒回應"; });
+}
+function fcLoad(){
+  fetch("/api/forecast",{cache:"no-store"}).then(function(r){ return r.json(); })
+  .then(function(d){ FCS=d.forecasts||[]; fcRender(); }).catch(function(){});
+}
+function fcRender(){
+  var done=FCS.filter(function(f){ return f.result; }), n=done.length, wait=FCS.length-n;
+  var avg=function(a,k){ return a.length ? a.reduce(function(s,f){ return s+f.result[k]; },0)/a.length : NaN; };
+  var hit=done.filter(function(f){ return f.result.hit; }).length, mhit=done.filter(function(f){ return f.result.mhit; }).length;
+  var wins=done.filter(function(f){ return f.result.score<f.result.mscore-1e-9; }).length;
+  var said=n ? Math.round(done.reduce(function(s,f){ return s+f.conf; },0)/n) : 0;
+  var sc=avg(done,"score"), ms=avg(done,"mscore");
+  var tile=function(l,v,sub){ return '<div class="tile"><div class="l">'+l+'</div><div class="v">'+v+'</div><div class="s">'+sub+'</div></div>'; };
+  var verdict = n<20 ? "還要 "+(20-n)+" 次結算，才看得出你到底準不準。一兩次的輸贏是運氣。" :
+    (sc<ms*0.95 ? "<b>你目前贏市場的區間。</b>這是用真錢表達看法的前提——但也要確認是不是剛好碰上某種盤勢。" :
+     "你目前還沒贏過市場的區間。這很正常，市場本來就很準；先繼續練，或多照抄市場、只改你真的有理由的地方。");
+  el("f-board").innerHTML='<div class="tiles">'+
+    tile("已結算", n+" 次", wait ? "還有 "+wait+" 次等結算" : "")+
+    tile("命中率 你／市場", n ? Math.round(hit/n*100)+"%／"+Math.round(mhit/n*100)+"%" : "—", n ? "你平均說 "+said+"%" : "")+
+    tile("平均罰分 你／市場", n ? sc.toFixed(2)+"／"+ms.toFixed(2) : "—", "單位：1 個標準差，越小越好")+
+    tile("贏市場", n ? wins+" / "+n : "—", "罰分比市場低的次數")+
+    '</div><p>'+verdict+'</p>';
+  fcCalib(done);
+  el("f-list").querySelector("tbody").innerHTML = FCS.length ? FCS.map(function(f){
+    var r=f.result, res = r ? '<span class="'+(r.score<r.mscore?"win":"lose")+'">'+r.score.toFixed(2)+"／"+r.mscore.toFixed(2)+"</span>" : "待結算";
+    var c=new Date(f.savedAt);
+    return "<tr><td>"+(c.getMonth()+1)+"/"+c.getDate()+"</td><td>"+expLabel(f.expiry)+"</td>"+
+      "<td class=\"n\">"+pts(f.lo)+"～"+pts(f.hi)+"（"+f.conf+"%）</td><td class=\"n\">"+pts(f.mlo)+"～"+pts(f.mhi)+"</td>"+
+      "<td class=\"n\">"+(r ? pts(r.S)+(r.hit?" ✓":" ✗") : "—")+"</td><td class=\"n\">"+res+"</td>"+
+      "<td><button class=\"x\" data-del=\""+f.id+"\" title=\"刪除這筆\">✕</button></td></tr>";
+  }).join("") : '<tr><td colspan="7" class="muted">還沒有預測。先選到期日、按「先抄市場的答案」，再決定要不要改。</td></tr>';
+}
+/* 校準圖：橫軸是你說的把握，縱軸是實際命中；點落在斜線上＝說到做到 */
+function fcCalib(done){
+  var W=360,H=260,L=38,B=34,T=12,R=12;
+  var X=function(v){ return L+(v-40)/60*(W-L-R); }, Y=function(v){ return T+(100-v)/100*(H-T-B); };
+  var s='<line x1="'+X(40)+'" y1="'+Y(40)+'" x2="'+X(100)+'" y2="'+Y(100)+'" stroke="var(--line2)" stroke-dasharray="4 3"/>';
+  [0,25,50,75,100].forEach(function(v){ s+='<text x="'+(L-6)+'" y="'+(Y(v)+3)+'" text-anchor="end">'+v+'%</text>'; });
+  [50,68,80,90].forEach(function(c){
+    s+='<text x="'+X(c)+'" y="'+(H-B+14)+'" text-anchor="middle">'+c+'%</text>';
+    var g=done.filter(function(f){ return f.conf===c; }); if(!g.length) return;
+    var you=g.filter(function(f){ return f.result.hit; }).length/g.length*100;
+    var mk=g.filter(function(f){ return f.result.mhit; }).length/g.length*100, rr=3+Math.sqrt(g.length)*1.5;
+    s+='<circle cx="'+X(c)+'" cy="'+Y(mk)+'" r="'+rr+'" fill="none" stroke="var(--ink3)" stroke-width="1.5"/>';
+    s+='<circle cx="'+X(c)+'" cy="'+Y(you)+'" r="'+rr+'" fill="var(--accent)" opacity=".85"/>';
+  });
+  s+='<text x="'+((L+W-R)/2)+'" y="'+(H-4)+'" text-anchor="middle">你說的把握（實心＝你，空心＝市場，斜線＝說到做到）</text>';
+  el("f-calib").innerHTML=s;
+}
+el("f-exp").addEventListener("change", function(e){ FPICK=e.target.value; fcPreview(); });
+["f-lo","f-hi","f-conf"].forEach(function(id){ el(id).addEventListener("input", fcPreview); });
+el("f-copy").addEventListener("click", function(){
+  var m=fcMarket(); if(!m) return; var b=fcBand(m,fcConf());
+  el("f-lo").value=r10(b[0]); el("f-hi").value=r10(b[1]); fcPreview();
+});
+el("f-save").addEventListener("click", fcSave);
+el("f-list").addEventListener("click", function(e){
+  var id=e.target.dataset && e.target.dataset.del; if(!id || !confirm("刪除這筆預測？")) return;
+  fetch("/api/forecast/delete",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:id})}).then(fcLoad);
+});
+fcLoad(); setInterval(fcLoad, 120000);
+
+load(); setInterval(load, 30000);
+</script>
+</body>
+</html>

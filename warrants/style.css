@@ -1,0 +1,249 @@
+/* 權證看台：柔和底色、卡片分區、台灣慣例（漲紅跌綠）。CSP 只允許本機樣式，字型一律用系統字。 */
+:root{
+  --bg:#f3f5f7; --panel:#fff; --panel2:#f8fafb; --ink:#1b2733; --ink2:#44566a; --muted:#6b7c8e;
+  --line:#e3e8ee; --line2:#cfd8e1;
+  --accent:#0f766e; --accent-ink:#0b5d57; --soft:#e6f4f1; --soft-line:#b7e0d8;
+  --profit:#c0392b; --profit-soft:#fdeceb; --profit-fill:rgba(192,57,43,.12);
+  --loss:#1e8a57; --loss-soft:#e8f6ee; --loss-fill:rgba(30,138,87,.12);
+  --gold:#b7791f; --gold-soft:#fdf4e3; --blue:#2f6fce; --blue-soft:#eaf1fc;
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 6px 20px rgba(16,24,40,.05);
+  --radius:14px;
+  font-family:"Segoe UI","Noto Sans TC","Microsoft JhengHei UI","Microsoft JhengHei",sans-serif;
+  color:var(--ink); background:var(--bg); font-size:15px; line-height:1.6;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#11161c; --panel:#18202a; --panel2:#1d2631; --ink:#e6edf3; --ink2:#b8c4d0; --muted:#8b9aab;
+    --line:#29343f; --line2:#35424f;
+    --accent:#2cb5a8; --accent-ink:#5fd0c5; --soft:#173331; --soft-line:#245a54;
+    --profit:#f06b5f; --profit-soft:#3a1f1d; --profit-fill:rgba(240,107,95,.16);
+    --loss:#45c486; --loss-soft:#15301f; --loss-fill:rgba(69,196,134,.14);
+    --gold:#e0a84a; --gold-soft:#33291a; --blue:#6aa0f0; --blue-soft:#1b2940;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+  }
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg)}
+h1,h2,p{margin:0}
+h1{font-size:19px; letter-spacing:.04em}
+h2{font-size:18px; font-weight:700}
+a{color:var(--accent)}
+[hidden]{display:none!important}
+
+/* ---------- 控制項 ---------- */
+button,input,select{font:inherit}
+button,.button{cursor:pointer; border:1px solid var(--line2); border-radius:10px; padding:8px 14px; background:var(--panel);
+  color:var(--ink); font-weight:600; min-height:40px; white-space:nowrap}
+button:hover,.button:hover{border-color:var(--accent); color:var(--accent-ink); background:var(--soft)}
+button:disabled{opacity:.45; cursor:not-allowed}
+button:disabled:hover{border-color:var(--line2); color:var(--ink); background:var(--panel)}
+.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+.primary:hover{background:var(--accent-ink); border-color:var(--accent-ink); color:#fff}
+.primary:disabled:hover{background:var(--accent); border-color:var(--accent); color:#fff}
+input,select{width:100%; min-height:42px; border:1px solid var(--line2); border-radius:10px; background:var(--panel);
+  color:var(--ink); padding:8px 11px; font-variant-numeric:tabular-nums}
+input:hover,select:hover{border-color:var(--muted)}
+input:focus,select:focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--soft); outline:none}
+:focus-visible{outline:3px solid var(--soft-line); outline-offset:2px}
+label{display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--ink2); font-weight:500}
+
+/* ---------- 頂列 ---------- */
+.topbar{position:sticky; top:0; z-index:5; background:var(--panel); border-bottom:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center; padding:14px 28px; gap:16px}
+.brand{display:flex; align-items:center; gap:13px}
+.brand p{color:var(--muted); font-size:12.5px}
+.mark{font:800 20px/1 "Segoe UI",sans-serif; border-radius:12px; width:42px; height:42px; display:grid; place-items:center;
+  background:var(--accent); color:#fff}
+.top-actions,.actions{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.badge{display:inline-flex; align-items:center; border-radius:999px; background:var(--soft); color:var(--accent-ink);
+  padding:3px 11px; font-size:12px; font-weight:700; white-space:nowrap}
+.badge.call{background:var(--profit-soft); color:var(--profit)}
+.badge.put{background:var(--loss-soft); color:var(--loss)}
+.topbar .badge{background:var(--soft); color:var(--accent-ink)}
+#notice{max-width:1600px; margin:14px auto 0; padding:10px 16px; border-radius:10px; background:var(--blue-soft);
+  color:var(--ink2); font-size:14px; width:calc(100% - 48px)}
+#notice.warn{background:var(--gold-soft); color:var(--gold)}
+#notice.error{background:var(--profit-soft); color:var(--profit)}
+
+/* ---------- 版面 ---------- */
+main{display:grid; grid-template-columns:minmax(330px,390px) minmax(0,1fr); gap:22px; max-width:1600px; margin:auto; padding:18px 24px 24px}
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); min-width:0; overflow:hidden; box-shadow:var(--shadow)}
+.workspace{display:flex; flex-direction:column; gap:22px; min-width:0}
+.section-heading{display:flex; align-items:center; justify-content:space-between; gap:14px; padding:18px 22px 14px}
+.eyebrow{display:inline-block; font-size:11.5px; letter-spacing:.06em; color:var(--accent-ink); background:var(--soft);
+  font-weight:700; border-radius:999px; padding:2px 10px; margin-bottom:7px}
+.muted,.hint{color:var(--muted); font-size:13px}
+.hint{padding:10px 22px; line-height:1.7}
+.empty{margin:14px 22px 20px; padding:26px 20px; color:var(--muted); font-size:14px; text-align:center;
+  border:1.5px dashed var(--line2); border-radius:12px; background:var(--panel2)}
+
+/* ---------- 左欄：找權證 ---------- */
+.catalog{align-self:start; position:sticky; top:86px; max-height:calc(100vh - 100px); display:flex; flex-direction:column}
+.catalog .section-heading{padding:18px 18px 8px}
+#catalog-count{background:var(--panel2); border:1px solid var(--line); border-radius:999px; padding:2px 10px; font-size:12px}
+#search-form{padding:6px 18px 0}
+.search-row{display:flex; gap:8px; margin-top:6px}
+.search-row input{min-width:0}
+.filters{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:12px}
+.filters label{font-size:12px}
+.filters select{font-size:13px; padding:6px 8px; min-height:38px}
+.catalog .hint{padding:10px 18px 6px}
+.catalog-list{padding:4px 12px 4px; overflow:auto; flex:1; min-height:120px}
+.warrant-card{display:block; text-align:left; width:100%; border:1px solid var(--line); border-radius:12px; padding:12px 14px;
+  margin:0 0 8px; white-space:normal; min-height:0; font-weight:400; background:var(--panel)}
+.warrant-card:hover{border-color:var(--soft-line); background:var(--panel2); color:var(--ink)}
+.warrant-card.selected{border-color:var(--accent); background:var(--soft); box-shadow:0 0 0 1px var(--accent)}
+.card-top{display:flex; gap:8px; justify-content:space-between; align-items:center}
+.card-name{font-size:14.5px; font-weight:700}
+.card-code{font:12px ui-monospace,"Cascadia Mono",Consolas,monospace; color:var(--muted); margin-top:3px}
+.card-prices{display:flex; gap:6px; flex-wrap:wrap; font-size:12.5px; margin-top:9px; color:var(--ink2)}
+.card-prices span{background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:2px 8px; font-variant-numeric:tabular-nums}
+.card-prices b{color:var(--ink)}
+.card-meta{font-size:11.5px; color:var(--muted); margin-top:7px}
+.pager{display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-top:1px solid var(--line)}
+.pager button{min-height:34px; padding:4px 12px; font-size:13px}
+.pager span{font-size:12px; color:var(--muted)}
+details{border-top:1px solid var(--line)}
+summary{cursor:pointer; padding:13px 20px; font-size:14px; font-weight:600; color:var(--ink2)}
+summary:hover{color:var(--accent-ink)}
+details p{padding:0 20px 14px; font-size:13px; color:var(--muted)}
+.field-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:0 20px 20px}
+.field-grid button{align-self:end}
+
+/* ---------- 02 建立模擬 ---------- */
+.contract-detail{margin:0 22px; padding:16px 18px; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px 14px;
+  background:var(--panel2); border:1px solid var(--line); border-radius:12px}
+.contract-detail > p{grid-column:1/-1}
+.detail-label{font-size:12px; color:var(--muted)}
+.detail-value{font-size:16.5px; font-weight:700; font-variant-numeric:tabular-nums}
+.detail-wide{grid-column:1/-1; font-size:13px; color:var(--ink2); background:var(--panel); border:1px solid var(--line);
+  padding:9px 12px; border-radius:9px}
+.entry-row{display:grid; grid-template-columns:1fr 1fr auto; gap:12px; align-items:end; padding:16px 22px 0}
+.selection .hint{padding-bottom:16px}
+
+/* ---------- 03 情境 ---------- */
+.scenario-fields{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:13px; padding:4px 22px 12px}
+.scenario-fields label:nth-child(2) input{border-color:var(--soft-line); background:var(--soft); font-weight:700}
+.scenario-bar{display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:0 22px 16px}
+.check{flex-direction:row; align-items:center; gap:7px}
+.check input{width:17px; min-height:17px; accent-color:var(--accent)}
+.scenario-bar button{font-size:12.5px; min-height:32px; padding:4px 11px}
+
+.metrics{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; padding:4px 22px 6px}
+.metrics > .empty{grid-column:1/-1; margin:0}
+.metric{padding:14px 16px; border:1px solid var(--line); border-radius:12px; background:var(--panel2)}
+.metric label{font-size:12px; color:var(--muted)}
+.metric strong{display:block; font-size:24px; font-weight:750; font-variant-numeric:tabular-nums; margin:3px 0 2px; letter-spacing:-.01em}
+.metric small{font-size:11.5px; color:var(--muted)}
+.metric:has(strong.pos){background:var(--profit-soft); border-color:transparent}
+.metric:has(strong.neg){background:var(--loss-soft); border-color:transparent}
+.pos{color:var(--profit)}
+.neg{color:var(--loss)}
+
+.chart{padding:14px 14px 0}
+.chart > .empty{margin:0 8px 6px}
+.chart svg{display:block; width:100%; height:auto}
+.chart svg text{font:12px "Segoe UI","Microsoft JhengHei",sans-serif; fill:var(--muted)}
+.chart .c-grid{stroke:var(--line)}
+.chart .c-zero{stroke:var(--line2); stroke-width:1.5}
+.chart .c-profit{fill:var(--profit-fill)}
+.chart .c-loss{fill:var(--loss-fill)}
+.chart .c-term{fill:none; stroke:var(--ink); stroke-width:2.6; stroke-linejoin:round}
+.chart .c-scen{fill:none; stroke:var(--blue); stroke-width:2.4; stroke-dasharray:7 5}
+.chart .c-spot{stroke:var(--gold); stroke-width:1.6}
+.chart .c-target{stroke:var(--accent); stroke-width:1.6; stroke-dasharray:4 4}
+.chart text.c-spot-label{fill:var(--gold); font-weight:700}
+.chart text.c-target-label{fill:var(--accent-ink); font-weight:700}
+.chart .c-dot{fill:var(--blue); stroke:var(--panel); stroke-width:2}
+.chart .hov{pointer-events:none}
+.chart .hov.off{display:none}
+.chart .hov line{stroke:var(--muted); stroke-width:1; stroke-dasharray:3 3}
+.chart .hov circle{fill:var(--panel); stroke:var(--ink); stroke-width:2}
+.chart .hov rect{fill:var(--panel); stroke:var(--line2); rx:8}
+.chart .hov text{font-size:12.5px; fill:var(--ink2)}
+.chart .hov text.v{font-size:13px; font-weight:700; fill:var(--ink)}
+.chart .hov text.pos{fill:var(--profit)}
+.chart .hov text.neg{fill:var(--loss)}
+.chart #hit{cursor:crosshair}
+.legend{display:flex; flex-wrap:wrap; gap:8px 18px; padding:8px 22px; font-size:12px; color:var(--ink2)}
+.legend span{display:flex; align-items:center; gap:7px}
+.line{width:22px; border-top:3px solid var(--ink); border-radius:2px}
+.line.scenario{border-color:var(--blue); border-top-style:dashed}
+.line.current{border-color:var(--gold)}
+.line.target{border-color:var(--accent); border-top-style:dashed}
+.chart-caption{margin:8px 22px 16px; padding:11px 14px; background:var(--soft); border-radius:10px; font-size:13px; color:var(--ink2)}
+.greeks{display:grid; grid-template-columns:repeat(4,1fr); padding:0 22px 20px; gap:10px}
+.greeks > div{border:1px solid var(--line); border-radius:10px; padding:9px 12px}
+.greeks span{display:block; font-size:11.5px; color:var(--muted)}
+.greeks b{font-size:15.5px; font-variant-numeric:tabular-nums}
+.advanced .field-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+/* ---------- 表格 ---------- */
+.table-wrap{overflow:auto; padding:0 12px 6px}
+table{width:100%; border-collapse:separate; border-spacing:0; white-space:nowrap; font-size:13.5px}
+th{background:var(--panel2); color:var(--muted); font-weight:600; font-size:12px; text-align:right; padding:10px 13px;
+  border-bottom:1px solid var(--line)}
+th:first-child{border-top-left-radius:10px}
+th:last-child{border-top-right-radius:10px}
+td{text-align:right; padding:11px 13px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums}
+tbody tr:hover td{background:var(--panel2)}
+tbody tr:last-child td{border-bottom:0}
+th:first-child,td:first-child{text-align:left}
+td button{font-size:12px; min-height:30px; padding:3px 10px; border-radius:8px}
+td small{display:block; color:var(--muted); font-size:11px}
+td .name{display:block; max-width:190px; overflow:hidden; text-overflow:ellipsis; font-weight:600}
+td.pos,td.neg{font-weight:700}
+
+/* ---------- 05 追蹤 ---------- */
+.journal-stats{margin:4px 22px 6px; padding:12px 16px; background:var(--panel2); border:1px solid var(--line); border-radius:10px; font-size:14px}
+.journal-card{margin:10px 22px; padding:15px 16px; border:1px solid var(--line); border-radius:12px; background:var(--panel)}
+.journal-card:hover{border-color:var(--soft-line)}
+.journal-head{display:flex; justify-content:space-between; align-items:center; gap:12px}
+.journal-head b{font-size:14.5px}
+.journal-card p{font-size:13px; color:var(--muted); margin:8px 0}
+.journal-card .actions button{font-size:12.5px; min-height:32px; padding:4px 11px}
+#journal > .empty{margin-bottom:22px}
+
+dialog{border:1px solid var(--line); border-radius:16px; width:min(520px,95vw); padding:24px; color:var(--ink);
+  background:var(--panel); box-shadow:0 20px 60px rgba(16,24,40,.25)}
+dialog::backdrop{background:rgba(17,24,39,.45)}
+dialog h2{margin-bottom:12px}
+dialog label{margin:12px 0}
+dialog .hint{padding:10px 0}
+.settle-note{padding:8px 12px; background:var(--gold-soft); color:var(--gold); border-radius:8px; font-size:12px}
+footer{max-width:1600px; margin:0 auto; padding:6px 24px 32px; color:var(--muted); font-size:12px}
+
+/* ---------- 寬度 ---------- */
+@media(min-width:1450px){main{grid-template-columns:410px minmax(0,1fr)}}
+@media(max-width:1100px){
+  main{grid-template-columns:310px minmax(0,1fr); gap:14px; padding:14px 16px}
+  .section-heading{padding:16px}
+  .metrics{grid-template-columns:1fr 1fr}
+  .entry-row{grid-template-columns:1fr 1fr}
+  .entry-row button{grid-column:1/-1}
+  .scenario-fields{grid-template-columns:1fr 1fr}
+  .contract-detail{grid-template-columns:1fr 1fr}
+  .greeks{grid-template-columns:1fr 1fr}
+}
+@media(max-width:760px){
+  .topbar{position:static; align-items:flex-start; padding:14px 16px; flex-direction:column}
+  .top-actions{width:100%}
+  .top-actions button{flex:1; font-size:13px}
+  #notice{width:calc(100% - 24px)}
+  main{display:block; padding:12px}
+  .catalog{position:static; max-height:none; margin-bottom:16px}
+  .catalog-list{max-height:430px}
+  .workspace{gap:16px}
+  .section-heading{flex-wrap:wrap}
+  .section-heading .actions{width:100%}
+  .scenario-fields,.entry-row,.scenario-bar,.metrics,.greeks{padding-left:16px; padding-right:16px}
+  .contract-detail{margin:0 16px}
+  .advanced .field-grid{grid-template-columns:1fr 1fr}
+  .metric{padding:12px 14px}
+  .metric strong{font-size:21px}
+  .journal-card,.journal-stats{margin-left:12px; margin-right:12px}
+  .hint{padding:10px 16px}
+}
+@media(prefers-reduced-motion:no-preference){
+  button,.warrant-card,input,select{transition:background .12s,border-color .12s,box-shadow .12s}
+}

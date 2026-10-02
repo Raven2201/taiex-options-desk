@@ -1,0 +1,21 @@
+.decision-guide{grid-column:1 / -1;min-width:0;border-top:3px solid var(--accent)}
+.dg-intro{padding:18px 20px 12px;display:flex;gap:16px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.dg-intro h2{font-size:20px}.dg-intro p{margin:4px 0;color:var(--ink2)}
+.dg-nav{display:flex;gap:6px;padding:0 20px 14px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.dg-nav button{padding:9px 14px;background:var(--surface2);border:1px solid var(--line);border-radius:5px}
+.dg-nav button[aria-current=step]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.dg-stage{padding:18px 20px}.dg-stage h3{font-size:16px;margin-bottom:8px}.dg-stage p{margin:6px 0 12px;color:var(--ink2)}
+.dg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.dg-wide{grid-column:1 / -1}
+.dg-field{display:flex;flex-direction:column;gap:5px;font-weight:500}.dg-field small{color:var(--ink3);font-weight:400}
+.dg-field input,.dg-field select,.dg-field textarea{width:100%;min-width:0;border:1px solid var(--line2);background:var(--surface2);border-radius:5px;padding:9px;font:inherit}
+.dg-field textarea{min-height:78px;resize:vertical}.dg-hint{padding:10px 12px;border-left:3px solid var(--accent);background:var(--accent-soft);margin:12px 0}
+.dg-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:12px}
+.dg-card{border:1px solid var(--line);background:var(--surface2);border-radius:6px;padding:14px;overflow-wrap:anywhere}.dg-card h4{margin:0 0 6px;font-size:14px}
+.dg-card .btn{margin-top:10px;padding:8px 12px}.dg-card dl{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:10px 0}.dg-card dt{color:var(--ink2)}.dg-card dd{margin:0;text-align:right;font-family:var(--mono)}
+.dg-table-wrap{overflow-x:auto}.dg-table{width:100%;border-collapse:collapse;font-size:13px}.dg-table th,.dg-table td{text-align:left;padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}.dg-table th{background:var(--surface2)}
+.dg-status{color:var(--ink2);font-size:12px}.dg-checks{padding-left:20px;line-height:1.9}.dg-checks .pending{color:var(--up)}
+.dg-footer{border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 20px}
+.dg-footer .btn{padding:8px 14px}.dg-facts{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.dg-facts span{padding:7px 10px;background:var(--surface2);border:1px solid var(--line);border-radius:4px}
+.dg-guide-message{min-height:20px;padding:0 20px;color:var(--accent)}
+.decision-guide button:disabled{opacity:.5;cursor:not-allowed}.dg-stage[hidden]{display:none}
+@media(max-width:650px){.dg-grid{grid-template-columns:1fr}.dg-stage,.dg-intro{padding:14px}.dg-nav{padding:0 14px 12px}.dg-nav button{flex:1 1 40%;padding:8px}.dg-footer{padding:12px 14px}.dg-cards{grid-template-columns:1fr}}

@@ -1,0 +1,9 @@
+__pycache__/
+.hist_cache.json
+.margin_cache.json
+.settle_cache.json
+warrants/runtime/
+.walls_cache.json
+codex_v2/
+forecasts/
+paper/
