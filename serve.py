@@ -8,6 +8,7 @@
 所以由這支代抓，順便做幾秒快取。
 """
 import argparse
+import subprocess
 import http.server
 import json
 import os
@@ -140,6 +141,19 @@ def make_handler(args):
     return H
 
 
+def tailscale_ip():
+    """Tailscale 私人網路上這台電腦的位址（100.x.x.x）；沒裝或沒登入就回 None。"""
+    for exe in ("tailscale", r"C:\Program Files\Tailscale\tailscale.exe"):
+        try:
+            out = subprocess.run([exe, "ip", "-4"], capture_output=True, text=True, timeout=5)
+        except Exception:
+            continue
+        ip = (out.stdout or "").strip().split("\n")[0].strip()
+        if out.returncode == 0 and ip.startswith("100."):
+            return ip
+    return None
+
+
 def desk_running(port):
     try:
         with urllib.request.urlopen("http://127.0.0.1:%d/" % port, timeout=2) as r:
@@ -158,12 +172,16 @@ def main():
     ap.add_argument("--series", type=int, default=4)
     ap.add_argument("--no-open", action="store_true")
     ap.add_argument("--path", default="/", help="開哪一頁：/ 看台、/learn 教學")
+    ap.add_argument("--tailscale", action="store_true",
+                    help="同時開在 Tailscale 私人網路上，讓自己的手機在外面也能連")
     args = ap.parse_args()
 
     # 已經有一份在跑就直接開那一頁，不要另起一個佔走下一個埠
     if desk_running(args.port):
         url = "http://127.0.0.1:%d%s" % (args.port, args.path)
         print("看台已經在跑，直接開啟 %s" % url)
+        if args.tailscale:
+            print("注意：已經在跑的那一份沒有開手機遠端。要讓手機連，先關掉舊的視窗再用這個捷徑重開。")
         if not args.no_open:
             webbrowser.open(url)
         return
@@ -183,6 +201,15 @@ def main():
         print("埠 %d 已被占用，改用 %d" % (args.port, port))
     url = "http://127.0.0.1:%d%s" % (port, args.path)
     print("台指選擇權看台（本機版） %s   每 %d 秒更新，Ctrl+C 結束" % (url, args.refresh))
+    # 只綁 Tailscale 的位址，不綁 0.0.0.0：家裡區網與外網都連不到，只有你自己 tailnet 裡的裝置可以
+    if args.tailscale:
+        ip = tailscale_ip()
+        if ip:
+            remote = ExclusiveServer((ip, port), make_handler(args))
+            threading.Thread(target=remote.serve_forever, daemon=True).start()
+            print("手機（Tailscale）開這個網址：http://%s:%d%s" % (ip, port, args.path))
+        else:
+            print("找不到 Tailscale，手機遠端沒有開。裝好並登入 Tailscale 之後重開這個視窗即可。")
     # 模擬單：每 5 分鐘估值持倉、到期後抓期交所最後結算價結算
     paper.start_worker(lambda: quotes(args.span, args.series, args.ttl), every=300)
     if not args.no_open:

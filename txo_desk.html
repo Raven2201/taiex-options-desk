@@ -91,6 +91,18 @@ main{
   gap:14px; padding:14px 20px 60px; align-items:start;
 }
 @media (max-width:1080px){ main{grid-template-columns:1fr} }
+#adv-toggle{display:none}
+/* 手機：參數列不黏頂、少用的參數收起來；先看「依看法」那一欄，報價鏈放後面 */
+@media (max-width:760px){
+  .topbar{position:static; padding:10px 12px; gap:10px}
+  .brand .sub{display:none}
+  .params .field.w-sm{display:none}
+  .topbar.show-adv .params .field.w-sm{display:flex}
+  #adv-toggle{display:inline-block}
+  main{padding:10px 8px 40px; gap:10px}
+  #col-right{order:1} #col-left{order:2} .dg-bar{order:3} #decision-guide{order:4}
+  .chain-wrap{max-height:45vh}
+}
 .col{display:flex; flex-direction:column; gap:14px; min-width:0}
 
 .panel{
@@ -367,6 +379,7 @@ footer{
   <div class="params">
     <a class="btn ghost" href="/learn" title="新手教學：怎麼讀市場給的區間、怎麼練習預測">教學</a>
     <button class="btn ghost" id="wipe" title="清掉部位、看法、目標價與策略選擇；模擬單紀錄不動">一鍵清空</button>
+    <button class="btn ghost" id="adv-toggle" type="button" aria-expanded="false">參數 ▸</button>
     <label class="field w-md"><span class="lbl">標的價 台指期</span><input id="p-fut" type="number" step="1" inputmode="decimal"></label>
     <label class="field"><span class="lbl">到期日</span><input id="p-exp" type="date"></label>
     <label class="field w-sm"><span class="lbl">剩餘天數</span><input id="p-days" type="number" step="0.05" min="0" inputmode="decimal"></label>
@@ -382,7 +395,7 @@ footer{
     <span class="dg-hint">想把看法變成部位時再打開；還在練判斷的話，先去<a href="/learn#l3">教學頁的練習場</a>。</span>
   </div>
   <section class="panel decision-guide" id="decision-guide" aria-label="決策引導" hidden></section>
-  <div class="col">
+  <div class="col" id="col-left">
     <section class="panel">
       <header>
         <h2>報價鏈</h2>
@@ -442,7 +455,7 @@ footer{
     </section>
   </div>
 
-  <div class="col">
+  <div class="col" id="col-right">
     <section class="panel">
       <header>
         <h2>依看法排策略</h2>
@@ -785,7 +798,13 @@ function renderChain(){
   });
   /* A live chain is 80+ strikes deep; drop the reader at the money — but only
      when the chain itself changed, never on top of their own scrolling. */
-  if(SCROLL_ATM && atmRow){ SCROLL_ATM=false; atmRow.scrollIntoView({block:"center"}); }
+  /* 只捲報價鏈自己的框，不動整頁：手機上報價鏈在下面，整頁跟著跳會很怪 */
+  if(SCROLL_ATM && atmRow){
+    SCROLL_ATM=false;
+    var wrap=atmRow.closest(".chain-wrap");
+    if(wrap){ var a=atmRow.getBoundingClientRect(), w=wrap.getBoundingClientRect();
+      wrap.scrollTop += (a.top-w.top) - (wrap.clientHeight-a.height)/2; }
+  }
 }
 function td(txt,cls){ var e=document.createElement("td"); if(cls) e.className=cls; e.textContent=txt; return e; }
 function priceCell(px,kind,K,bid,ask){
@@ -2679,6 +2698,10 @@ function tickClock(){
   load();
   S.chain=[];
   document.getElementById("wipe").addEventListener("click", wipeDesk);
+  document.getElementById("adv-toggle").addEventListener("click", function(){
+    var tb=document.querySelector(".topbar"), on=tb.classList.toggle("show-adv");
+    this.setAttribute("aria-expanded", on?"true":"false"); this.textContent="參數 "+(on?"▾":"▸");
+  });
   /* 決策引導預設收起：它是把看法變成部位的工具，練判斷在教學頁 */
   (function(){
     var b=document.getElementById("dg-toggle"), p=document.getElementById("decision-guide");
