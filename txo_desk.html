@@ -102,6 +102,12 @@ main{
   main{padding:10px 8px 40px; gap:10px}
   #col-right{order:1} #col-left{order:2} .dg-bar{order:3} #decision-guide{order:4}
   .chain-wrap{max-height:45vh}
+  /* iPhone：輸入框字小於 16px，一點就自動放大且不縮回 */
+  input,select,textarea{font-size:16px!important}
+  .chip{white-space:normal!important; max-width:100%}
+  /* 寬表格在自己的框裡橫向捲動，不撐破整頁 */
+  table.legs,table.prem,.vartable{display:block; overflow-x:auto; -webkit-overflow-scrolling:touch}
+  table.legs td,table.legs th{white-space:nowrap}
 }
 .col{display:flex; flex-direction:column; gap:14px; min-width:0}
 
@@ -192,6 +198,7 @@ td.dim{color:var(--ink3)}
 }
 .acts button.b:hover{color:var(--up); border-color:var(--up); background:var(--up-soft)}
 .acts button.s:hover{color:var(--down); border-color:var(--down); background:var(--down-soft)}
+.collapsed{display:none!important}
 .empty{padding:26px 12px; text-align:center; color:var(--ink3); font-size:12.5px}
 
 /* ---------- presets ---------- */
@@ -511,7 +518,7 @@ footer{
         </thead>
         <tbody id="legs-body"></tbody>
       </table>
-      <div class="empty collapsed" id="legs-empty">從左邊報價鏈點「買」或「賣」加腳，或用上面的策略快建。</div>
+      <div class="empty collapsed" id="legs-empty">從報價鏈點「買」或「賣」加腳，或用上面的策略快建。</div>
       <table class="prem" id="prem" hidden>
         <thead><tr>
           <th>權利金拆帳</th><th>買進 付出</th><th>賣出 收取</th><th>淨額</th>
@@ -1301,6 +1308,14 @@ function renderView(){
   renderBandHint();
   if(!S.view){ wrap.hidden=true; note.classList.add("collapsed"); chip.textContent="填看法後按「排出來」"; return; }
   var rows=rankView();
+  if(!rows.length){
+    wrap.hidden=true; note.classList.remove("collapsed");
+    var live=S.chain.some(function(r){ return r.call!=null || r.put!=null; });
+    note.innerHTML = live ? "這個看法下排不出任何結構（候選都被禁裸賣或上方無限虧損的規則排除）。"
+      : "現在報價鏈上沒有可用的價格——多半是<b>開盤前或收盤後</b>，期交所只留收盤資料、沒有買賣價。等開盤有報價後再按「排出來」。";
+    chip.textContent = S.expiry.slice(5)+" 結算 "+viewText(S.view);
+    return;
+  }
   wrap.hidden=false; body.innerHTML="";
   var sg=sigmaPts();
   chip.textContent = S.expiry.slice(5)+" 結算 "+viewText(S.view)+
